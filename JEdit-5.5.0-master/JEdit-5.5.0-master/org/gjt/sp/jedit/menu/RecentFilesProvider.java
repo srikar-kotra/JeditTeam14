@@ -102,7 +102,7 @@ public class RecentFilesProvider implements DynamicMenuProvider
 				Pattern pattern = null;
 				if (filter)
 				{
-				        String regex = "." + Pattern.quote(typedText) + "."; // Match anywhere in the file name
+				        String regex = ".*" + Pattern.quote(typedText) + ".*"; // Match anywhere in the file name
 					pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 				
 				}
