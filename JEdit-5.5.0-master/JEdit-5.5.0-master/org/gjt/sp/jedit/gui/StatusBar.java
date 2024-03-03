@@ -384,7 +384,12 @@ public class StatusBar extends JPanel
 			buf.setLength(0);
 		}
 	}
-
+	// modified the updatecaretmethod to include the number of words in the file
+	private int countWordsInBuffer(Buffer buffer) {
+			String text = buffer.getText();
+			StringTokenizer tokenizer = new StringTokenizer(text);
+			return tokenizer.countTokens();
+	}
 	//{{{ updateBufferStatus() method
 	public void updateBufferStatus()
 	{
