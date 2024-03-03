@@ -711,6 +711,13 @@ public abstract class TextArea extends JPanel
 		setFirstLine(getFirstLine() + getVisibleLines()
 			- (lastLinePartial ? 1 : 0));
 	} //}}}
+	
+		
+	public void disableScrollBars(){ 
+
+                  scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); 
+                  scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); 
+         } 
 
 	//{{{ scrollToCaret() method
 	/**
