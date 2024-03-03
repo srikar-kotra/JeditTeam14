@@ -336,16 +336,12 @@ public class StatusBar extends JPanel
 
 	//{{{ updateCaretStatus() method
 	/** Updates the status bar with information about the caret position, line number, etc */
-	public void updateCaretStatus()
-	{
-		if (showCaretStatus)
-		{
+        //modified the updatecaretmethod to add the word offset of the caret from the beginning of the file 
+	public void updateCaretStatus() {
+		if (showCaretStatus) {
 			Buffer buffer = view.getBuffer();
 
-			if(!buffer.isLoaded() ||
-				/* can happen when switching buffers sometimes */
-				buffer != view.getTextArea().getBuffer())
-			{
+			if (!buffer.isLoaded() || buffer != view.getTextArea().getBuffer()) {
 				caretStatus.setText(" ");
 				return;
 			}
@@ -355,75 +351,45 @@ public class StatusBar extends JPanel
 			int caretPosition = textArea.getCaretPosition();
 			int currLine = textArea.getCaretLine();
 
-			// there must be a better way of fixing this...
-			// the problem is that this method can sometimes
-			// be called as a result of a text area scroll
-			// event, in which case the caret position has
-			// not been updated yet.
-			if(currLine >= buffer.getLineCount())
-				return; // hopefully another caret update will come?
+			if (currLine >= buffer.getLineCount())
+				return;
 
 			int start = textArea.getLineStartOffset(currLine);
 			int dot = caretPosition - start;
 
-			if(dot < 0)
+			if (dot < 0)
 				return;
 
 			int bufferLength = buffer.getLength();
 
-			buffer.getText(start,dot,seg);
-			int virtualPosition = StandardUtilities.getVirtualWidth(seg,
-				buffer.getTabSize());
-			// for GC
-			seg.array = null;
-			seg.count = 0;
+			String text = buffer.getText(0, caretPosition);
+			StringTokenizer tokenizer = new StringTokenizer(text);
 
-			if (jEdit.getBooleanProperty("view.status.show-caret-linenumber", true))
-			{
-				buf.append(currLine + 1);
-				buf.append(',');
-			}
-			if (jEdit.getBooleanProperty("view.status.show-caret-dot", true))
-			{
-				buf.append(dot + 1);
-			}
-			if (jEdit.getBooleanProperty("view.status.show-caret-virtual", true) &&
-				virtualPosition != dot)
-			{
-				buf.append('-');
-				buf.append(virtualPosition + 1);
-			}
-			if (buf.length() > 0)
-			{
-				buf.append(' ');
-			}
-			if (jEdit.getBooleanProperty("view.status.show-caret-offset", true) &&
-				jEdit.getBooleanProperty("view.status.show-caret-bufferlength", true))
-			{
-				buf.append('(');
-				buf.append(caretPosition);
-				buf.append('/');
-				buf.append(bufferLength);
-				buf.append(')');
-			}
-			else if (jEdit.getBooleanProperty("view.status.show-caret-offset", true))
-			{
-				buf.append('(');
-				buf.append(caretPosition);
-				buf.append(')');
-			}
-			else if (jEdit.getBooleanProperty("view.status.show-caret-bufferlength", true))
-			{
-				buf.append('(');
-				buf.append(bufferLength);
-				buf.append(')');
-			}
+			int wordCount = tokenizer.countTokens();
+
+			buf.append(currLine + 1);
+			buf.append(',');
+			buf.append(dot + 1);
+			buf.append(" (");
+			buf.append(caretPosition);
+			buf.append('/');
+			buf.append(bufferLength);
+			buf.append(")(");
+			buf.append(wordCount);
+			buf.append('/');
+			buf.append(countWordsInBuffer(buffer));
+			buf.append(")");
 
 			caretStatus.setText(buf.toString());
 			buf.setLength(0);
 		}
-	} //}}}
-
+	}
+	// modified the updatecaretmethod to include the number of words in the file
+	private int countWordsInBuffer(Buffer buffer) {
+			String text = buffer.getText();
+			StringTokenizer tokenizer = new StringTokenizer(text);
+			return tokenizer.countTokens();
+	}
 	//{{{ updateBufferStatus() method
 	public void updateBufferStatus()
 	{
