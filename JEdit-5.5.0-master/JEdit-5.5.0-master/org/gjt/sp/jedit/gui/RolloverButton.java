@@ -1,29 +1,5 @@
-/*
- * RolloverButton.java - Class for buttons that implement rollovers
- * :tabSize=4:indentSize=4:noTabs=false:
- * :folding=explicit:collapseFolds=1:
- *
- * Copyright (C) 2002 Kris Kopicki
- * Portions copyright (C) 2003 Slava Pestov
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- */
-
 package org.gjt.sp.jedit.gui;
 
-//{{{ Imports
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -32,125 +8,131 @@ import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.plaf.basic.BasicBorders.ButtonBorder;
 import org.gjt.sp.jedit.OperatingSystem;
 
-//}}}
+public class RolloverButton extends JButton {
+    private ButtonState buttonState;
 
-/** Class for buttons that implement rollovers
- *
- * If you wish to have rollovers on your buttons, use this class.
- *
- * Unlike the Swing rollover support, this class works outside of
- * <code>JToolBar</code>s, and does not require undocumented client
- * property hacks or JDK1.4-specific API calls.<p>
- *
- * Note: You should not call <code>setBorder()</code> on your buttons,
- * as they probably won't work properly.
- * @version $Id$
- */
-public class RolloverButton extends JButton
-{
-	//{{{ RolloverButton constructor
-	/**
-	 * Setup the border (invisible initially)
-	 */
-	public RolloverButton()
-	{
-		//setContentAreaFilled(true);
-		addMouseListener(new MouseOverHandler());
-	} //}}}
+    public RolloverButton(ButtonState buttonState) {
+        this.buttonState = buttonState;
+        addMouseListener(new MouseOverHandler());
+    }
 
-	//{{{ RolloverButton constructor
-	/**
-	 * Setup the border (invisible initially)
-	 *
-	 * @param icon the icon of this button
-	 */
-	public RolloverButton(Icon icon)
-	{
-		this();
+    public RolloverButton(Icon icon, ButtonState buttonState) {
+        this(buttonState);
+        setIcon(icon);
+    }
 
-		setIcon(icon);
-	} //}}}
+    public void updateUI() {
+        super.updateUI();
+        buttonState.setBorderPainted(false);
+        buttonState.setRequestFocusEnabled(false);
+        buttonState.setMargin(new Insets(1,1,1,1));
+    }
 
-	//{{{ updateUI() method
-	public void updateUI()
-	{
-		super.updateUI();
-		//setBorder(originalBorder);
-		setBorderPainted(false);
-		setRequestFocusEnabled(false);
-		setMargin(new Insets(1,1,1,1));
-	} //}}}
+    public void setEnabled(boolean b) {
+        super.setEnabled(b);
+        buttonState.setBorderPainted(false);
+        repaint();
+    }
 
-	//{{{ setEnabled() method
-	public void setEnabled(boolean b)
-	{
-		super.setEnabled(b);
-		setBorderPainted(false);
-		repaint();
-	} //}}}
+    public void setBorderPainted(boolean b) {
+        try {
+            buttonState.setRevalidateBlocked(true);
+            super.setBorderPainted(b);
+            setContentAreaFilled(b);
+        } finally {
+            buttonState.setRevalidateBlocked(false);
+        }
+    }
 
-	//{{{ setBorderPainted() method
-	public void setBorderPainted(boolean b)
-	{
-		try
-		{
-			revalidateBlocked = true;
-			super.setBorderPainted(b);
-			setContentAreaFilled(b);
-		}
-		finally
-		{
-			revalidateBlocked = false;
-		}
-	} //}}}
+    public void revalidate() {
+        if (!buttonState.isRevalidateBlocked())
+            super.revalidate();
+    }
 
-	//{{{ revalidate() method
-	/**
-	 * We block calls to revalidate() from a setBorderPainted(), for
-	 * performance reasons.
-	 */
-	public void revalidate()
-	{
-		if(!revalidateBlocked)
-			super.revalidate();
-	} //}}}
+    public void paint(Graphics g) {
+        if (isEnabled())
+            super.paint(g);
+        else {
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setComposite(buttonState.getAlphaComposite());
+            super.paint(g2);
+        }
+    }
 
-	//{{{ paint() method
-	public void paint(Graphics g)
-	{
-		if(isEnabled())
-			super.paint(g);
-		else
-		{
-			Graphics2D g2 = (Graphics2D)g;
-			g2.setComposite(c);
-			super.paint(g2);
-		}
-	} //}}}
+    class MouseOverHandler extends MouseAdapter {
+        public void mouseEntered(MouseEvent e) {
+            buttonState.setContentAreaFilled(true);
+            buttonState.setBorderPainted(isEnabled());
+        }
 
-	//{{{ Private members
-	private static final AlphaComposite c = AlphaComposite.getInstance(
-		AlphaComposite.SRC_OVER, 0.5f);
+        public void mouseExited(MouseEvent e) {
+            buttonState.setContentAreaFilled(false);
+            buttonState.setBorderPainted(false);
+        }
+    }
+}
 
-	private boolean revalidateBlocked;
+class ButtonState {
+    private boolean borderPainted;
+    private boolean contentAreaFilled;
+    private boolean revalidateBlocked;
+    private AlphaComposite alphaComposite;
 
-	//{{{ MouseHandler class
-	/**
-	 * Make the border visible/invisible on rollovers
-	 */
-	class MouseOverHandler extends MouseAdapter
-	{
-		public void mouseEntered(MouseEvent e)
-		{
-			setContentAreaFilled(true);
-			setBorderPainted(isEnabled());
-		}
+    public ButtonState() {
+        alphaComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+    }
 
-		public void mouseExited(MouseEvent e)
-		{
-			setContentAreaFilled(false);
-			setBorderPainted(false);
-		}
-	} //}}}
-	//}}}
+    public boolean isBorderPainted() {
+        return borderPainted;
+    }
+
+    public void setBorderPainted(boolean borderPainted) {
+        this.borderPainted = borderPainted;
+    }
+
+    public boolean isContentAreaFilled() {
+        return contentAreaFilled;
+    }
+
+    public void setContentAreaFilled(boolean contentAreaFilled) {
+        this.contentAreaFilled = contentAreaFilled;
+    }
+
+    public boolean isRevalidateBlocked() {
+        return revalidateBlocked;
+    }
+
+    public void setRevalidateBlocked(boolean revalidateBlocked) {
+        this.revalidateBlocked = revalidateBlocked;
+    }
+
+    public AlphaComposite getAlphaComposite() {
+        return alphaComposite;
+    }
+
+    public void setAlphaComposite(AlphaComposite alphaComposite) {
+        this.alphaComposite = alphaComposite;
+    }
+
+    public void setRequestFocusEnabled(boolean b) {
+        this.requestFocusEnabled = b;
+    }
+
+    public void setMargin(Insets insets) {
+        this.margin = insets;
+    }
+
+    // Additional private fields for demonstration purposes
+    private boolean requestFocusEnabled;
+    private Insets margin;
+
+    // Getter methods for the additional fields
+    public boolean isRequestFocusEnabled() {
+        return requestFocusEnabled;
+    }
+
+    public Insets getMargin() {
+        return margin;
+    }
+
 }
