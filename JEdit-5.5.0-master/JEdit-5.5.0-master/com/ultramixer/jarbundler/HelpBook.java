@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (c) 2015, UltraMixer Digital Audio Solutions <info@ultramixer.com>, Seth J. Morabito <sethm@loomcom.com>
  * All rights reserved.
  *
@@ -18,22 +18,23 @@
 
 package com.ultramixer.jarbundler;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.io.File;
 
 public class HelpBook {
 
     private String folderName;
     private String locale;
     private String name;
-    private final List<File> fileList;
-    private final Set<File> fileSet;
+    private final FileList fileList;
+    private final FileSet fileSet;
 
     public HelpBook() {
-        this.fileList = new ArrayList<>();
-        this.fileSet = new HashSet<>();
+        this.fileList = new FileList();
+        this.fileSet = new FileSet();
     }
 
     // Help Book name
@@ -64,54 +65,20 @@ public class HelpBook {
     }
 
     // Help Book files as a list of files
-    public void addFile(File file) {
-        fileList.add(file);
+    public void addFileToList(File file) {
+        fileList.addFile(file);
     }
 
-    public List<File> getFiles() {
-        return fileList;
+    public List<File> getFilesFromList() {
+        return fileList.getFiles();
     }
 
     // Help Book files as a set of files
-    public void addFile(File file) {
-        fileSet.add(file);
+    public void addFileToSet(File file) {
+        fileSet.addFile(file);
     }
 
-    public Set<File> getFiles() {
-        return fileSet;
-    }
-
-    // Add FileList
-    public void addFileList(FileList list) {
-        list.addFile(file);
-    }
-
-    public FileList getFileLists() {
-        return new FileList();
-    }
-
-    // Add FileSet
-    public void addFileSet(FileSet set) {
-        set.addFile(file);
-    }
-
-    public FileSet getFileSets() {
-        return new FileSet();
-    }
-}
-
-public class FileList {
-    private List<File> files;
-
-    public void addFile(File file) {
-        files.add(file);
-    }
-}
-
-public class FileSet {
-    private Set<File> files;
-
-    public void addFile(File file) {
-        files.add(file);
+    public Set<File> getFilesFromSet() {
+        return fileSet.getFiles();
     }
 }
