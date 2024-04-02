@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (c) 2015, UltraMixer Digital Audio Solutions <info@ultramixer.com>, Seth J. Morabito <sethm@loomcom.com>
  * All rights reserved.
  *
@@ -18,72 +18,100 @@
 
 package com.ultramixer.jarbundler;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.io.File;
 
-import org.apache.tools.ant.taskdefs.MatchingTask;
-import org.apache.tools.ant.types.FileList;
-import org.apache.tools.ant.types.FileSet;
+public class HelpBook {
 
-import java.lang.String;
+    private String folderName;
+    private String locale;
+    private String name;
+    private final List<File> fileList;
+    private final Set<File> fileSet;
 
+    public HelpBook() {
+        this.fileList = new ArrayList<>();
+        this.fileSet = new HashSet<>();
+    }
 
+    // Help Book name
+    public void setName(String name) {
+        this.name = name;
+    }
 
-public class HelpBook extends MatchingTask {
+    public String getName() {
+        return name;
+    }
 
-	private String folderName = null;
-	private String name = null;
-	private String locale = null;
+    // Help Book folder name
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
 
-	private final List fileLists = new ArrayList();
-	private final List fileSets = new ArrayList();
+    public String getFolderName() {
+        return folderName;
+    }
 
+    // Help Book locale
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
 
-	// Help Book name
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getLocale() {
+        return locale;
+    }
 
-	public String getName() {
-		return name;
-	}
+    // Help Book files as a list of files
+    public void addFile(File file) {
+        fileList.add(file);
+    }
 
+    public List<File> getFiles() {
+        return fileList;
+    }
 
-	// Help Book folder name
-	public void setFolderName(String folderName) {
-		this.folderName = folderName;
-	}
+    // Help Book files as a set of files
+    public void addFile(File file) {
+        fileSet.add(file);
+    }
 
-	public String getFolderName() {
-		return folderName;
-	}
+    public Set<File> getFiles() {
+        return fileSet;
+    }
 
+    // Add FileList
+    public void addFileList(FileList list) {
+        list.addFile(file);
+    }
 
-	// Help Book locale
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    public FileList getFileLists() {
+        return new FileList();
+    }
 
-	public String getLocale() {
-		return locale;
-	}
+    // Add FileSet
+    public void addFileSet(FileSet set) {
+        set.addFile(file);
+    }
 
-	// Help Book files as a ANT FileList	
-	public void addFileList(FileList fileList) {
-		fileLists.add(fileList);
-	}
+    public FileSet getFileSets() {
+        return new FileSet();
+    }
+}
 
-	public List getFileLists() {
-		return fileLists;
-	}
+public class FileList {
+    private List<File> files;
 
-	// Help Book files as a ANT FileSet	
-	public void addFileSet(FileSet fileSet) {
-		fileSets.add(fileSet);
-	}
+    public void addFile(File file) {
+        files.add(file);
+    }
+}
 
-	public List getFileSets() {
-		return fileSets;
-	}
+public class FileSet {
+    private Set<File> files;
 
+    public void addFile(File file) {
+        files.add(file);
+    }
 }
